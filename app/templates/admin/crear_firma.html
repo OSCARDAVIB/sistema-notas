@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Firma Digital{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pen"></i> Crear Firma Digital</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Cargo *</label>
+                            <select class="form-select" name="cargo" required>
+                                <option value="">Seleccione cargo...</option>
+                                <option value="rector">Rector(a)</option>
+                                <option value="coordinador">Coordinador(a)</option>
+                                <option value="secretaria">Secretaria</option>
+                                <option value="docente">Docente</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Título (opcional)</label>
+                            <input type="text" class="form-control" name="titulo" placeholder="Ej: Mg., Dr., Lic.">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control" name="nombre_persona" placeholder="Ej: María González" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> La imagen de la firma se podrá subir más adelante.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.firmas') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Crear Firma</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Asignatura{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-book"></i> Crear Nueva Asignatura</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Asignatura *</label>
+                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Matemáticas" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="codigo" placeholder="Ej: MAT">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Área</label>
+                            <select class="form-select" name="area">
+                                <option value="">Seleccione área...</option>
+                                <option value="Matemáticas">Matemáticas</option>
+                                <option value="Ciencias Naturales">Ciencias Naturales</option>
+                                <option value="Ciencias Sociales">Ciencias Sociales</option>
+                                <option value="Lenguaje">Lenguaje</option>
+                                <option value="Inglés">Inglés</option>
+                                <option value="Artes">Artes</option>
+                                <option value="Educación Física">Educación Física</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Ética">Ética</option>
+                                <option value="Otra">Otra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Intensidad Horaria (horas semanales)</label>
+                            <input type="number" class="form-control" name="intensidad_horaria" min="1" max="10">
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.asignaturas') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Crear Asignatura</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Super Admin - Sistema Académico{% endblock %}
+
+{% block content %}
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i> Sistema Académico
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- MENÚ LATERAL -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('superadmin.dashboard') }}" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('superadmin.instituciones') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-building"></i> Instituciones
+                </a>
+                <a href="{{ url_for('superadmin.usuarios') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+            </div>
+        </div>
+        
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="col-md-9">
+            <h2><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+            <p class="text-muted">Super Administrador</p>
+            
+            <!-- TARJETAS DE ESTADÍSTICAS -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body text-center">
+                            <h3>{{ total_instituciones }}</h3>
+                            <p class="mb-0 small">Total Instituciones</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center">
+                            <h3>{{ instituciones_activas }}</h3>
+                            <p class="mb-0 small">Activas</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card text-white bg-danger">
+                        <div class="card-body text-center">
+                            <h3>{{ instituciones_inactivas }}</h3>
+                            <p class="mb-0 small">Inactivas</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center">
+                            <h3>{{ total_usuarios }}</h3>
+                            <p class="mb-0 small">Total Usuarios</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BOTONES DE ACCIÓN RÁPIDA -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-lightning-charge"></i> Acciones Rápidas</h5>
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="{{ url_for('superadmin.crear_institucion') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Nueva Institución
+                                </a>
+                                <a href="{{ url_for('superadmin.crear_usuario') }}" class="btn btn-success">
+                                    <i class="bi bi-person-plus"></i> Nuevo Usuario
+                                </a>
+                                <a href="{{ url_for('superadmin.instituciones') }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-building"></i> Ver Instituciones
+                                </a>
+                                <a href="{{ url_for('superadmin.usuarios') }}" class="btn btn-outline-success">
+                                    <i class="bi bi-people"></i> Ver Usuarios
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TABLAS DE ÚLTIMOS REGISTROS -->
+            <div class="row mt-4">
+                <!-- ÚLTIMAS INSTITUCIONES -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-building"></i> Últimas Instituciones
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for inst in ultimas_instituciones %}
+                                    <tr>
+                                        <td>{{ inst.nombre }}</td>
+                                        <td>
+                                            {% if inst.activa %}
+                                                <span class="badge bg-success">Activa</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactiva</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="small text-muted">
+                                            {{ inst.fecha_registro.strftime('%d/%m/%Y') if inst.fecha_registro else 'N/A' }}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No hay instituciones registradas</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ÚLTIMOS USUARIOS -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-people"></i> Últimos Usuarios
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Nombre</th>
+                                        <th>Rol</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for usr in ultimos_usuarios %}
+                                    <tr>
+                                        <td>{{ usr.username }}</td>
+                                        <td>{{ usr.nombre_completo() }}</td>
+                                        <td>
+                                            {% for rol in usr.roles %}
+                                                <span class="badge bg-info">{{ rol.nombre }}</span>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No hay usuarios registrados</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

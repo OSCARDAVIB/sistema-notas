@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Instituciones - Super Admin{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i> Sistema Académico
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-building"></i> Instituciones</h2>
+        <a href="{{ url_for('superadmin.crear_institucion') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Institución
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Código DANE</th>
+                        <th>NIT</th>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inst in instituciones %}
+                    <tr>
+                        <td>{{ inst.nombre }}</td>
+                        <td>{{ inst.codigo_dane or 'N/A' }}</td>
+                        <td>{{ inst.nit or 'N/A' }}</td>
+                        <td>
+                            {% if inst.activa %}
+                                <span class="badge bg-success">Activa</span>
+                            {% else %}
+                                <span class="badge bg-danger">Suspendida</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ inst.fecha_registro.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('superadmin.editar_institucion', institucion_id=inst.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <form action="{{ url_for('superadmin.eliminar_institucion', institucion_id=inst.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar esta institución?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay instituciones registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

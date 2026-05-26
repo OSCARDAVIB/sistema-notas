@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Curso y Grupo{% endblock %}
+
+{% block content %}
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> Editar Curso y Grupo</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        
+                        <!-- DATOS DEL CURSO -->
+                        <h5 class="text-primary mb-3"><i class="bi bi-layers"></i> Datos del Curso</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Curso *</label>
+                            <input type="text" class="form-control" name="nombre" value="{{ curso.nombre }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="codigo" value="{{ curso.codigo or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Orden</label>
+                            <input type="number" class="form-control" name="orden" value="{{ curso.orden or 0 }}" min="0">
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" name="activo" id="activo" {% if curso.activo %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">Activo</label>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- DATOS DEL GRUPO -->
+                        <h5 class="text-success mb-3"><i class="bi bi-people-fill"></i> Datos del Grupo</h5>
+                        
+                        {% if grupos %}
+                            {% for grupo in grupos %}
+                            <div class="card mb-3 border-success">
+                                <div class="card-header bg-success text-white">
+                                    Grupo: {{ grupo.nombre }}
+                                </div>
+                                <div class="card-body">
+                                    <input type="hidden" name="grupo_id" value="{{ grupo.id }}">
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Año Lectivo:</label>
+                                        <input type="number" class="form-control" name="ano_lectivo" value="{{ grupo.ano_lectivo }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Literal (Letra del Grupo):</label>
+                                        <select class="form-select" name="codigo" required>
+                                    <option value="A" {% if grupo.codigo == 'A' %}selected{% endif %}>A</option>
+                                    <option value="B" {% if grupo.codigo == 'B' %}selected{% endif %}>B</option>
+                                    <option value="C" {% if grupo.codigo == 'C' %}selected{% endif %}>C</option>
+                                    <option value="D" {% if grupo.codigo == 'D' %}selected{% endif %}>D</option>
+                                    <option value="E" {% if grupo.codigo == 'E' %}selected{% endif %}>E</option>
+                                    <option value="F" {% if grupo.codigo == 'F' %}selected{% endif %}>F</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Jornada:</label>
+                                        <select class="form-select" name="jornada" required>
+                                            <option value="MAÑANA" {% if grupo.jornada == 'MAÑANA' %}selected{% endif %}>MAÑANA</option>
+                                            <option value="TARDE" {% if grupo.jornada == 'TARDE' %}selected{% endif %}>TARDE</option>
+                                            <option value="NOCHE" {% if grupo.jornada == 'NOCHE' %}selected{% endif %}>NOCHE</option>
+                                            <option value="UNICA" {% if grupo.jornada == 'UNICA' %}selected{% endif %}>UNICA</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Sede:</label>
+                                        <select class="form-select" name="sede" required>
+                                            <option value="PRINCIPAL" {% if grupo.sede == 'PRINCIPAL' %}selected{% endif %}>PRINCIPAL</option>
+                                            <option value="LA ZARCITA" {% if grupo.sede == 'LA ZARCITA' %}selected{% endif %}>LA ZARCITA</option>
+                                            <option value="EL BRASIL" {% if grupo.sede == 'EL BRASIL' %}selected{% endif %}>EL BRASIL</option>
+                                            <option value="EL PARAISO" {% if grupo.sede == 'EL PARAISO' %}selected{% endif %}>EL PARAISO</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Director de Grupo:</label>
+                                        <select class="form-select" name="director_grupo_id">
+                                            <option value="" {% if not grupo.director_grupo_id %}selected{% endif %}>(SIN ASIGNAR)</option>
+                                            {% for docente in docentes %}
+                                            <option value="{{ docente.id }}" {% if grupo.director_grupo_id == docente.id %}selected{% endif %}>
+                                                {{ docente.nombre_completo() }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> Este curso no tiene grupos creados.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('admin.cursos') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

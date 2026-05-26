@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boletines - {{ grupo.curso.nombre }} {{ grupo.nombre }}</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 0; }
+            
+            .boletin {
+                margin: 0 !important;
+                padding: 10mm 15mm 15mm 15mm !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                border: 2px solid #000;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.3;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .boletin {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm 15mm 15mm 15mm;
+            margin: 0 auto;
+            page-break-after: always;
+            page-break-inside: avoid;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+            
+        @media print {
+            .boletin {
+                border: none !important;
+            }
+        }
+        
+        .header-top {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+        
+        .header-resolution {
+            font-size: 9pt;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+        
+        .header-location {
+            font-size: 9pt;
+            font-style: italic;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+        
+        .header-dane {
+            font-size: 9pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+        
+        .header-nit {
+            font-size: 9pt;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 4px 0;
+            margin: 5px 0;
+            text-align: center;
+        }
+        
+        /* LOGOS - CORREGIDO */
+        .logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            margin-top: 0px;
+        }
+
+        .logo-left, .logo-right {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-left img, .logo-right img {
+            max-width: 75px;
+            max-height: 75px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            position: relative;
+            top: -30px;  /* Subir 30px hacia arriba */
+        }
+
+        .logo-center {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .student-box {
+            border: 2px solid #000;
+            margin-bottom: 15px;
+        }
+        
+        .student-name {
+            background: #e0e0e0;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 11pt;
+            border-bottom: 2px solid #000;
+        }
+        
+        .student-info {
+            display: flex;
+            padding: 8px;
+            font-size: 9pt;
+        }
+        
+        .student-info-item {
+            flex: 1;
+            font-weight: bold;
+        }
+        
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 9pt;
+        }
+        
+        .grades-table th {
+            background: #f0f0f0;
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 8pt;
+        }
+        
+        .grades-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .grades-table td.area-header {
+            background: #d0d0d0;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 10px;
+        }
+        
+        .grades-table td.subject {
+            text-align: left;
+            padding-left: 15px;
+        }
+        
+        .grades-table td.note {
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .grades-table td.ponderado {
+            font-weight: bold;
+            background: #f8f8f8;
+        }
+        
+        .observations-box {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 15px;
+            min-height: 60px;
+        }
+        
+        .observations-title {
+            font-weight: bold;
+            font-size: 9pt;
+            margin-bottom: 5px;
+        }
+        
+        .signatures {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        
+        .signature {
+            text-align: center;
+            width: 200px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            padding-top: 5px;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+        
+        .status-section {
+            margin: 15px 0;
+            font-size: 9pt;
+        }
+        
+        .status-item {
+            margin: 5px 0;
+        }
+        
+        .status-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .status-line {
+            display: inline-block;
+            width: 200px;
+            border-bottom: 1px solid #000;
+        }
+        
+        .scale-section {
+            margin-top: 20px;
+        }
+        
+        .scale-title {
+            font-weight: bold;
+            font-size: 9pt;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .scale-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+        }
+        
+        .scale-table th {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .scale-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .btn-print:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print no-print" onclick="window.print()">
+        Imprimir Boletines
+    </button>
+
+    {% for data in boletines_data %}
+    <div class="boletin">
+        <div class="header">
+            <div class="header-top">{{ institucion.nombre }}</div>
+            <div class="header-resolution">
+                Aprobado por Resolución N° {{ institucion.resolucion_numero or '_____' }} de {{ institucion.resolucion_fecha or '___________' }}
+            </div>
+            <div class="header-location">{{ institucion.direccion or 'Nueva Granada Magdalena' }}</div>
+            <div class="header-dane">DANE: {{ institucion.codigo_dane or '_________________' }}</div>
+            <div class="header-nit">NIT: {{ institucion.nit or '_________________' }}</div>
+            
+            <div class="logos">
+                <div class="logo-left">
+                    {% if institucion.logo_url %}
+                        <img src="{{ institucion.logo_url }}" alt="Logo Colegio">
+                    {% else %}
+                        <div style="width: 70px; height: 70px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #666;">
+                            SIN LOGO
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="logo-center">
+                    <div class="header-title">INFORME DE NOTAS POR PERIODOS</div>
+                </div>
+                <div class="logo-right">
+                    {% if institucion.escudo_colombia_url %}
+                        <img src="{{ institucion.escudo_colombia_url }}" alt="Escudo Colombia">
+                    {% else %}
+                        <div style="width: 70px; height: 70px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #666; text-align: center;">
+                            ESCUDO<br>COLOMBIA<br>Libertad y Orden
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="student-box">
+            <div class="student-name">
+                APELLIDOS Y NOMBRES: {{ data.estudiante.apellidos.upper() }} {{ data.estudiante.nombres.upper() }}
+            </div>
+            <div class="student-info">
+                <div class="student-info-item">JORNADA: TARDE</div>
+                <div class="student-info-item">
+                    GRADO: 
+                    {% if data.estudiante.grupo %}
+                        {% if data.estudiante.grupo.curso.nombre == 'PRIMERO' %}1°
+                        {% elif data.estudiante.grupo.curso.nombre == 'SEGUNDO' %}2°
+                        {% elif data.estudiante.grupo.curso.nombre == 'TERCERO' %}3°
+                        {% elif data.estudiante.grupo.curso.nombre == 'CUARTO' %}4°
+                        {% elif data.estudiante.grupo.curso.nombre == 'QUINTO' %}5°
+                        {% elif data.estudiante.grupo.curso.nombre == 'SEXTO' %}6°
+                        {% elif data.estudiante.grupo.curso.nombre == 'SEPTIMO' %}7°
+                        {% elif data.estudiante.grupo.curso.nombre == 'OCTAVO' %}8°
+                        {% elif data.estudiante.grupo.curso.nombre == 'NOVENO' %}9°
+                        {% elif data.estudiante.grupo.curso.nombre == 'DECIMO' %}10°
+                        {% elif data.estudiante.grupo.curso.nombre == 'ONCE' %}11°
+                        {% else %}{{ data.estudiante.grupo.curso.nombre }}
+                        {% endif %}
+                        {{ data.estudiante.grupo.codigo }}
+                    {% else %}
+                        ____
+                    {% endif %}
+                </div>
+                <div class="student-info-item">ANO: {{ data.estudiante.ano_lectivo }}</div>
+            </div>
+        </div>
+        
+        <table class="grades-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">AREA / ASIGNATURAS</th>
+                    <th style="width: 15%;">PERIODO 1<br>15%</th>
+                    <th style="width: 15%;">PERIODO 2<br>20%</th>
+                    <th style="width: 15%;">PERIODO 3<br>30%</th>
+                    <th style="width: 15%;">PERIODO 4<br>35%</th>
+                    <th style="width: 15%;">PONDERADO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="subject">MATEMATICAS</td>
+                    <td class="note">{{ data.notas_periodo[1]['MATEMATICAS'] if data.notas_periodo[1].get('MATEMATICAS') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['MATEMATICAS'] if data.notas_periodo[2].get('MATEMATICAS') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['MATEMATICAS'] if data.notas_periodo[3].get('MATEMATICAS') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['MATEMATICAS'] if data.notas_periodo[4].get('MATEMATICAS') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['MATEMATICAS'] if data.ponderados.get('MATEMATICAS') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="area-header" colspan="6">HUMANIDADES</td>
+                </tr>
+                <tr>
+                    <td class="subject">ESPANOL</td>
+                    <td class="note">{{ data.notas_periodo[1]['ESPANOL'] if data.notas_periodo[1].get('ESPANOL') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['ESPANOL'] if data.notas_periodo[2].get('ESPANOL') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['ESPANOL'] if data.notas_periodo[3].get('ESPANOL') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['ESPANOL'] if data.notas_periodo[4].get('ESPANOL') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['ESPANOL'] if data.ponderados.get('ESPANOL') else '' }}</td>
+                </tr>
+                <tr>
+                    <td class="subject">INGLES</td>
+                    <td class="note">{{ data.notas_periodo[1]['INGLES'] if data.notas_periodo[1].get('INGLES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['INGLES'] if data.notas_periodo[2].get('INGLES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['INGLES'] if data.notas_periodo[3].get('INGLES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['INGLES'] if data.notas_periodo[4].get('INGLES') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['INGLES'] if data.ponderados.get('INGLES') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">CIENCIAS NATURALES</td>
+                    <td class="note">{{ data.notas_periodo[1]['CIENCIAS NATURALES'] if data.notas_periodo[1].get('CIENCIAS NATURALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['CIENCIAS NATURALES'] if data.notas_periodo[2].get('CIENCIAS NATURALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['CIENCIAS NATURALES'] if data.notas_periodo[3].get('CIENCIAS NATURALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['CIENCIAS NATURALES'] if data.notas_periodo[4].get('CIENCIAS NATURALES') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['CIENCIAS NATURALES'] if data.ponderados.get('CIENCIAS NATURALES') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">CIENCIAS SOCIALES</td>
+                    <td class="note">{{ data.notas_periodo[1]['CIENCIAS SOCIALES'] if data.notas_periodo[1].get('CIENCIAS SOCIALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['CIENCIAS SOCIALES'] if data.notas_periodo[2].get('CIENCIAS SOCIALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['CIENCIAS SOCIALES'] if data.notas_periodo[3].get('CIENCIAS SOCIALES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['CIENCIAS SOCIALES'] if data.notas_periodo[4].get('CIENCIAS SOCIALES') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['CIENCIAS SOCIALES'] if data.ponderados.get('CIENCIAS SOCIALES') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">EDUCACION ARTISTICA</td>
+                    <td class="note">{{ data.notas_periodo[1]['EDUCACION ARTISTICA'] if data.notas_periodo[1].get('EDUCACION ARTISTICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['EDUCACION ARTISTICA'] if data.notas_periodo[2].get('EDUCACION ARTISTICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['EDUCACION ARTISTICA'] if data.notas_periodo[3].get('EDUCACION ARTISTICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['EDUCACION ARTISTICA'] if data.notas_periodo[4].get('EDUCACION ARTISTICA') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['EDUCACION ARTISTICA'] if data.ponderados.get('EDUCACION ARTISTICA') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">EDUCACION FISICA</td>
+                    <td class="note">{{ data.notas_periodo[1]['EDUCACION FISICA'] if data.notas_periodo[1].get('EDUCACION FISICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['EDUCACION FISICA'] if data.notas_periodo[2].get('EDUCACION FISICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['EDUCACION FISICA'] if data.notas_periodo[3].get('EDUCACION FISICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['EDUCACION FISICA'] if data.notas_periodo[4].get('EDUCACION FISICA') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['EDUCACION FISICA'] if data.ponderados.get('EDUCACION FISICA') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">ETICA Y VALORES</td>
+                    <td class="note">{{ data.notas_periodo[1]['ETICA Y VALORES'] if data.notas_periodo[1].get('ETICA Y VALORES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['ETICA Y VALORES'] if data.notas_periodo[2].get('ETICA Y VALORES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['ETICA Y VALORES'] if data.notas_periodo[3].get('ETICA Y VALORES') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['ETICA Y VALORES'] if data.notas_periodo[4].get('ETICA Y VALORES') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['ETICA Y VALORES'] if data.ponderados.get('ETICA Y VALORES') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">EDUCACION RELIGIOSA</td>
+                    <td class="note">{{ data.notas_periodo[1]['EDUCACION RELIGIOSA'] if data.notas_periodo[1].get('EDUCACION RELIGIOSA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['EDUCACION RELIGIOSA'] if data.notas_periodo[2].get('EDUCACION RELIGIOSA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['EDUCACION RELIGIOSA'] if data.notas_periodo[3].get('EDUCACION RELIGIOSA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['EDUCACION RELIGIOSA'] if data.notas_periodo[4].get('EDUCACION RELIGIOSA') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['EDUCACION RELIGIOSA'] if data.ponderados.get('EDUCACION RELIGIOSA') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">TECNOLOGIA E INFORMATICA</td>
+                    <td class="note">{{ data.notas_periodo[1]['TECNOLOGIA E INFORMATICA'] if data.notas_periodo[1].get('TECNOLOGIA E INFORMATICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['TECNOLOGIA E INFORMATICA'] if data.notas_periodo[2].get('TECNOLOGIA E INFORMATICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['TECNOLOGIA E INFORMATICA'] if data.notas_periodo[3].get('TECNOLOGIA E INFORMATICA') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['TECNOLOGIA E INFORMATICA'] if data.notas_periodo[4].get('TECNOLOGIA E INFORMATICA') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['TECNOLOGIA E INFORMATICA'] if data.ponderados.get('TECNOLOGIA E INFORMATICA') else '' }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="subject">COMPORTAMIENTO</td>
+                    <td class="note">{{ data.notas_periodo[1]['COMPORTAMIENTO'] if data.notas_periodo[1].get('COMPORTAMIENTO') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[2]['COMPORTAMIENTO'] if data.notas_periodo[2].get('COMPORTAMIENTO') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[3]['COMPORTAMIENTO'] if data.notas_periodo[3].get('COMPORTAMIENTO') else '' }}</td>
+                    <td class="note">{{ data.notas_periodo[4]['COMPORTAMIENTO'] if data.notas_periodo[4].get('COMPORTAMIENTO') else '' }}</td>
+                    <td class="ponderado">{{ data.ponderados['COMPORTAMIENTO'] if data.ponderados.get('COMPORTAMIENTO') else '' }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="observations-box">
+            <div class="observations-title">OBSERVACIONES</div>
+            <div style="min-height: 40px;">
+                {% if data.observaciones %}
+                    {% for obs in data.observaciones %}
+                        {{ obs }}<<br>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="signatures">
+            <div class="signature">
+                <div class="signature-line">DOCENTE</div>
+            </div>
+            <div class="signature">
+                <div class="signature-line">COORDINADORA</div>
+            </div>
+        </div>
+        
+        <div class="status-section">
+            <div class="status-item">
+                <span class="status-label">PROMOVIDO:</span>
+                <span class="status-line"></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">APLAZADO:</span>
+                <span class="status-line"></span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">INASISTENTE:</span>
+                <span class="status-line"></span>
+            </div>
+        </div>
+        
+        <div class="scale-section">
+            <div class="scale-title">ESCALA VALORATIVA</div>
+            <table class="scale-table">
+                <tr>
+                    <th>DESEMPENO SUPERIOR<br>(DS) 4,6 A 5,0</th>
+                    <th>DESEMPENO ALTO<br>(DA) 4,0 A 4,5</th>
+                    <th>DESEMPENO BASICO<br>(DBS) 3,0 A 3,9</th>
+                    <th>DESEMPENO BAJO<br>(DBJ) 0,0 A 2,9</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Cambiar Grupo - {{ estudiante.nombre_completo() }}{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-arrow-left-right"></i> Cambiar Grupo del Estudiante</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-person"></i> {{ estudiante.nombre_completo() }}</h5>
+                        <p class="mb-1"><strong>Documento:</strong> {{ estudiante.tipo_documento }} {{ estudiante.numero_documento }}</p>
+                        <p class="mb-1"><strong>Grupo actual:</strong> 
+                            <span class="badge bg-primary">{{ estudiante.grupo.nombre if estudiante.grupo else 'Sin grupo' }}</span>
+                            ({{ estudiante.grupo.curso.nombre if estudiante.grupo and estudiante.grupo.curso else '' }})
+                        </p>
+                        <p class="mb-0"><strong>Año lectivo:</strong> {{ estudiante.ano_lectivo }}</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('admin.guardar_cambio_grupo', estudiante_id=estudiante.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Nuevo Grupo *</strong></label>
+                            <select class="form-select" name="nuevo_grupo_id" required>
+                                <option value="">Seleccione el nuevo grupo...</option>
+                                {% for grupo in grupos %}
+                                <option value="{{ grupo.id }}">
+                                    {{ grupo.nombre }} ({{ grupo.curso.nombre }}) - Año {{ grupo.ano_lectivo }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Seleccione el grupo al que desea trasladar al estudiante.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Motivo del Cambio</strong></label>
+                            <select class="form-select" name="motivo">
+                                <option value="promocion">Promoción de grado</option>
+                                <option value="cambio_jornada">Cambio de jornada</option>
+                                <option value="correccion">Corrección de matrícula</option>
+                                <option value="traslado">Traslado interno</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Observación</strong></label>
+                            <textarea class="form-control" name="observacion" rows="2" placeholder="Ej: Estudiante promovido de 5° a 6° por buen desempeño académico."></textarea>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Importante:</strong> Este cambio moverá al estudiante al nuevo grupo. Las notas anteriores se mantendrán en el historial.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.estudiantes') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-left-right"></i> Confirmar Cambio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

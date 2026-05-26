@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Importar Estudiantes desde Excel{% endblock %}
+
+{% block content %}
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin.configuracion') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear"></i> Configuración
+                </a>
+                <a href="{{ url_for('admin.periodos') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar-event"></i> Periodos
+                </a>
+                <a href="{{ url_for('admin.cursos') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-layers"></i> Cursos y Grupos
+                </a>
+                <a href="{{ url_for('admin.asignaturas') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-book"></i> Asignaturas
+                </a>
+                <a href="{{ url_for('admin.escala_valorativa') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-graph-up"></i> Escala Valorativa
+                </a>
+                <a href="{{ url_for('admin.firmas') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-pen"></i> Firmas Digitales
+                </a>
+                <a href="{{ url_for('admin.crear_estudiante') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-person-plus"></i> Nuevo Estudiante
+                </a>
+                <a href="{{ url_for('admin.importar_estudiantes') }}" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-file-earmark-excel"></i> Importar Excel
+                </a>
+                <a href="{{ url_for('admin.carga_academica') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clipboard-check"></i> Carga Académica
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h2><i class="bi bi-file-earmark-excel"></i> Importar Estudiantes desde Excel</h2>
+            <p class="text-muted">Carga masiva de matrícula</p>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Instrucciones</h5>
+                </div>
+                <div class="card-body">
+                    <p>El archivo Excel debe tener las siguientes columnas en la <strong>primera fila</strong> (encabezados):</p>
+                    
+                    <h6 class="text-danger">⚠️ Columnas OBLIGATORIAS (no pueden estar vacías):</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Columna</th>
+                                <th>Descripción</th>
+                                <th>Ejemplo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-warning">
+                                <td><code>tipo_documento</code></td>
+                                <td>TI, CC, RC, etc.</td>
+                                <td>TI</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><code>numero_documento</code></td>
+                                <td>Número sin puntos ni espacios</td>
+                                <td>1234567890</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><code>nombres</code></td>
+                                <td>Nombres del estudiante</td>
+                                <td>Juan Carlos</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><code>apellidos</code></td>
+                                <td>Apellidos del estudiante</td>
+                                <td>Pérez Gómez</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h6 class="text-primary">📋 Columnas OPCIONALES:</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Columna</th>
+                                <th>Descripción</th>
+                                <th>Ejemplo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>genero</code></td>
+                                <td>M o F</td>
+                                <td>M</td>
+                            </tr>
+                            <tr>
+                                <td><code>fecha_nacimiento</code></td>
+                                <td>Formato AAAA-MM-DD</td>
+                                <td>2010-05-15</td>
+                            </tr>
+                            <tr>
+                                <td><code>grupo_id</code></td>
+                                <td>ID del grupo (ver lista abajo)</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td><code>ano_lectivo</code></td>
+                                <td>Año de matrícula</td>
+                                <td>2026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i class="bi bi-exclamation-triangle"></i> Reglas importantes:</h6>
+                        <ul class="mb-0">
+                            <li>No dejar celdas vacías en columnas obligatorias</li>
+                            <li>No repetir número de documento</li>
+                            <li>La fecha debe ser AAAA-MM-DD</li>
+                            <li>El <code>grupo_id</code> debe existir en la lista de abajo</li>
+                        </ul>
+                    </div>
+                    
+                    <a href="{{ url_for('admin.descargar_plantilla') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download"></i> Descargar plantilla Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- LISTA DE GRUPOS DISPONIBLES -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-list-ol"></i> Grupos Disponibles</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Usa estos ID en la columna <code>grupo_id</code>:</p>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Grupo</th>
+                                <th>Curso</th>
+                                <th>Año</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in grupos %}
+                            <tr>
+                                <td><strong>{{ g.id }}</strong></td>
+                                <td>{{ g.nombre }}</td>
+                                <td>{{ g.curso.nombre if g.curso else 'N/A' }}</td>
+                                <td>{{ g.ano_lectivo }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-upload"></i> Subir Archivo</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin.procesar_excel') }}">
+                        <div class="mb-3">
+                            <label for="archivo" class="form-label">Seleccionar archivo Excel (.xlsx)</label>
+                            <input class="form-control" type="file" id="archivo" name="archivo" accept=".xlsx" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Grupo (opcional - si no está en el Excel)</label>
+                            <select class="form-select" name="grupo_id_default">
+                                <option value="">Usar grupo del Excel</option>
+                                {% for grupo in grupos %}
+                                <option value="{{ grupo.id }}">{{ grupo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-upload"></i> Importar Estudiantes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if resultado %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-check-circle"></i> Resultado de la Importación</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <h3 class="text-success">{{ resultado.creados }}</h3>
+                            <p>Estudiantes creados</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h3 class="text-warning">{{ resultado.existentes }}</h3>
+                            <p>Ya existían</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h3 class="text-danger">{{ resultado.errores }}</h3>
+                            <p>Errores</p>
+                        </div>
+                    </div>
+                    
+                    {% if resultado.detalles_errores %}
+                    <hr>
+                    <h6>Errores encontrados:</h6>
+                    <ul class="list-group">
+                        {% for error in resultado.detalles_errores %}
+                        <li class="list-group-item list-group-item-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

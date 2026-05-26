@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Notas{% endblock %}
+
+{% block content %}
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i> Sistema Académico
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('docente.dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('docente.carga_academica') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clipboard-check"></i> Carga Académica
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h2><i class="bi bi-pencil-square"></i> Registrar Notas</h2>
+            <p class="text-muted">
+                <strong>Grupo:</strong> {{ grupo.nombre }} | 
+                <strong>Asignatura:</strong> {{ asignatura.nombre }}
+            </p>
+            
+            {% if periodos_activos %}
+            <!-- SELECTOR DE PERIODOS -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-center">
+                        <input type="hidden" name="grupo_id" value="{{ grupo.id }}">
+                        <input type="hidden" name="asignatura_id" value="{{ asignatura.id }}">
+                        
+                        <div class="col-md-4">
+                            <label class="form-label"><strong>Seleccionar Periodo:</strong></label>
+                        </div>
+                        <div class="col-md-5">
+                            <select class="form-select" name="periodo_id" onchange="this.form.submit()">
+                                {% for p in periodos_activos %}
+                                <option value="{{ p.id }}" {% if periodo and periodo.id == p.id %}selected{% endif %}>
+                                    Periodo {{ p.numero_periodo }} - {{ p.ano_lectivo }} {% if p.activo and not p.cerrado %}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            {% if periodo_cerrado %}
+                                <span class="badge bg-danger">Periodo Cerrado</span>
+                            {% else %}
+                                <span class="badge bg-success">Periodo Activo</span>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if periodo %}
+            <div class="alert alert-info">
+                <i class="bi bi-calendar-event"></i> 
+                <strong>Periodo seleccionado:</strong> {{ periodo.nombre or 'Periodo ' + periodo.numero_periodo|string }} - {{ periodo.ano_lectivo }}
+            </div>
+            
+            <!-- ============================================ -->
+            <!-- CAMBIO: Definir si el periodo está cerrado   -->
+            <!-- ============================================ -->
+            {% set periodo_cerrado = (periodo.fecha_cierre_notas and periodo.fecha_cierre_notas < hoy) or (periodo.cierre_forzado|default(false)) %}
+            
+            <!-- ============================================ -->
+            <!-- CAMBIO: Alerta cuando el periodo está cerrado -->
+            <!-- ============================================ -->
+            {% if periodo_cerrado %}
+            <div class="alert alert-danger">
+                <i class="bi bi-lock-fill"></i> 
+                <strong>Periodo cerrado para notas.</strong> 
+                {% if periodo.fecha_cierre_notas and periodo.fecha_cierre_notas < hoy %}
+                    La fecha límite ({{ periodo.fecha_cierre_notas }}) ha vencido.
+                {% endif %}
+                {% if periodo.cierre_forzado %}
+                    Cierre forzado por administración.
+                {% endif %}
+                Contacta al director.
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('docente.guardar_notas') }}"
+                  {% if periodo_cerrado %}onsubmit="return false;"{% endif %}>
+                <input type="hidden" name="grupo_id" value="{{ grupo.id }}">
+                <input type="hidden" name="asignatura_id" value="{{ asignatura.id }}">
+                <input type="hidden" name="periodo_id" value="{{ periodo.id }}">
+                
+                <div class="card {% if periodo_cerrado %}border-danger{% endif %}">
+                    <div class="card-body {% if periodo_cerrado %}opacity-50{% endif %}">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Estudiante</th>
+                                        <th>Nota (0-5)</th>
+                                        <th>Logro</th>
+                                        <th>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for estudiante in estudiantes %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ estudiante.nombre_completo() }}</td>
+                                        <td>
+                                            <!-- ============================================ -->
+                                            <!-- CAMBIO: disabled readonly si cerrado         -->
+                                            <!-- ============================================ -->
+                                            <input type="number" 
+                                                   class="form-control form-control-sm" 
+                                                   name="nota_{{ estudiante.id }}" 
+                                                   value="{{ notas_registradas[estudiante.id].nota if estudiante.id in notas_registradas else '' }}"
+                                                   min="0" max="5" step="0.1" 
+                                                   style="width: 80px;"
+                                                   {% if periodo_cerrado %}disabled readonly{% endif %}>
+                                        </td>
+                                        <td>
+                                            <input type="text" 
+                                                   class="form-control form-control-sm" 
+                                                   name="logro_{{ estudiante.id }}"
+                                                   value="{{ notas_registradas[estudiante.id].logro if estudiante.id in notas_registradas else '' }}"
+                                                   placeholder="Logro alcanzado"
+                                                   {% if periodo_cerrado %}disabled readonly{% endif %}>
+                                        </td>
+                                        <td>
+                                            <input type="text" 
+                                                   class="form-control form-control-sm" 
+                                                   name="observacion_{{ estudiante.id }}"
+                                                   value="{{ notas_registradas[estudiante.id].observacion if estudiante.id in notas_registradas else '' }}"
+                                                   placeholder="Observación"
+                                                   {% if periodo_cerrado %}disabled readonly{% endif %}>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ url_for('docente.carga_academica') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            
+                            <!-- ============================================ -->
+                            <!-- CAMBIO: Botón deshabilitado si cerrado       -->
+                            <!-- ============================================ -->
+                            <button type="submit" class="btn {% if periodo_cerrado %}btn-danger{% else %}btn-primary{% endif %}"
+                                    {% if periodo_cerrado %}disabled{% endif %}>
+                                {% if periodo_cerrado %}
+                                    <i class="bi bi-lock-fill"></i> Periodo Cerrado
+                                {% else %}
+                                    <i class="bi bi-save"></i> Guardar Notas
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> 
+                No hay un periodo académico activo. Contacta al administrador.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

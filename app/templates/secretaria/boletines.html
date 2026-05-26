@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Generar Boletines - Secretaría{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-file-alt"></i> Generar Boletines</h2>
+    
+    <div class="row">
+        <!-- OPCIÓN 1: Boletín Individual -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Boletín Individual</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Busca un estudiante por nombre, apellido o número de documento.</p>
+                    
+                    <form method="GET" action="{{ url_for('secretaria.boletines') }}">
+                        <div class="input-group mb-3">
+                            <input type="text" name="busqueda" class="form-control" 
+                                   placeholder="Nombre, apellido o documento..." 
+                                   value="{{ busqueda or '' }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {% if busqueda %}
+                        {% if estudiantes %}
+                            <div class="alert alert-info">
+                                <strong>Se encontraron {{ estudiantes|length }} estudiante(s):</strong>
+                            </div>
+        
+                            <div class="list-group mb-3">
+                                {% for est in estudiantes %}
+                                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                    <strong>{{ est.nombre_completo() }}</strong><br>
+                                    <small class="text-muted">Documento: {{ est.numero_documento }} | 
+                                    Grupo: {{ est.grupo.nombre if est.grupo else 'N/A' }}</small>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select form-select-sm select-periodo" style="width: 200px;" required>
+                                    <option value="">-- Periodo --</option>
+                                    {% for p in periodos %}
+                                        <option value="{{ p.id }}">
+                                            {{ p.ano_lectivo }} - P{{ p.numero_periodo }}
+                                            {% if p.nombre %}({{ p.nombre }}){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="btn btn-success btn-sm" onclick="generarBoletinIndividual({{ est.id }}, this)">
+                                    <i class="fas fa-file-pdf"></i> Boletín
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        No se encontró ningún estudiante con "<strong>{{ busqueda }}</strong>".
+                    </div>
+                {% endif %}
+            {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- OPCIÓN 2: Boletines por Curso -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Boletines por Curso/Grupo</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Genera los boletines de todos los estudiantes de un grupo.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar Grupo:</label>
+                        <select id="select-grupo" class="form-select" required>
+                            <option value="">-- Selecciona un grupo --</option>
+                            {% for g in grupos %}
+                                <option value="{{ g.id }}">
+                                    {{ g.curso.nombre }} - {{ g.nombre }} 
+                                    (Año: {{ g.ano_lectivo }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar Periodo:</label>
+                        <select id="select-periodo-curso" class="form-select" required>
+                            <option value="">-- Selecciona un periodo --</option>
+                            {% for p in periodos %}
+                                <option value="{{ p.id }}">
+                                    {{ p.ano_lectivo }} - Periodo {{ p.numero_periodo }}
+                                    {% if p.nombre %}({{ p.nombre }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="button" class="btn btn-info w-100 text-white" onclick="generarBoletinesCurso()">
+                        <i class="fas fa-files-o"></i> Generar Boletines del Curso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generarBoletinIndividual(estudianteId, btnElement) {
+    // Buscar el select de periodo en el mismo contenedor del botón
+    var select = btnElement.parentElement.querySelector('.select-periodo');
+    var periodoId = select.value;
+    if (!periodoId) {
+        alert('Por favor selecciona un periodo.');
+        return;
+    }
+    var url = '/secretaria/generar-boletin/' + estudianteId + '/' + periodoId;
+    window.location.href = url;
+}
+
+function generarBoletinesCurso() {
+    var grupoId = document.getElementById('select-grupo').value;
+    var periodoId = document.getElementById('select-periodo-curso').value;
+    
+    if (!grupoId || !periodoId) {
+        alert('Por favor selecciona un grupo y un periodo.');
+        return;
+    }
+    
+    var url = '/secretaria/generar-boletines-curso/' + grupoId + '/' + periodoId;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

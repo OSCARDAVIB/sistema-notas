@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Curso{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-layers"></i> Crear Nuevo Curso</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Curso *</label>
+                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Sexto" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="codigo" placeholder="Ej: 6">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Orden (para organizar)</label>
+                            <input type="number" class="form-control" name="orden" value="0" min="0">
+                            <div class="form-text">Número para ordenar los cursos (6, 7, 8, 9, 10, 11).</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.cursos') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Crear Curso</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

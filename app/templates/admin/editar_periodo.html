@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Periodo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-calendar"></i> Editar Periodo Académico</h2>
+    
+    <div class="card mt-3">
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>Nombre:</strong></label>
+                        <input type="text" class="form-control" name="nombre" 
+                               value="{{ periodo.nombre or '' }}" 
+                               placeholder="Ej: Primer Periodo">
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label"><strong>Año Lectivo:</strong></label>
+                        <input type="number" class="form-control" name="ano_lectivo" 
+                               value="{{ periodo.ano_lectivo }}" required>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label"><strong>Número Periodo:</strong></label>
+                        <input type="number" class="form-control" name="numero_periodo" 
+                               value="{{ periodo.numero_periodo }}" min="1" max="4" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label"><strong>Fecha Inicio:</strong></label>
+                        <input type="date" class="form-control" name="fecha_inicio" 
+                               value="{{ periodo.fecha_inicio }}" required>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label"><strong>Fecha Fin:</strong></label>
+                        <input type="date" class="form-control" name="fecha_fin" 
+                               value="{{ periodo.fecha_fin }}" required>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label"><strong>Porcentaje (%):</strong></label>
+                        <input type="number" class="form-control" name="porcentaje" 
+                               value="{{ periodo.porcentaje }}" min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label"><strong>Fecha Límite para Notas:</strong></label>
+                        <input type="date" class="form-control" name="fecha_cierre_notas" 
+                               value="{{ periodo.fecha_cierre_notas or '' }}">
+                        <small class="text-muted">Después de esta fecha los docentes no podrán subir notas</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="activo" 
+                                   id="activo" {% if periodo.activo %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">
+                                Periodo Activo
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="cerrado" 
+                                   id="cerrado" {% if periodo.cerrado %}checked{% endif %}>
+                            <label class="form-check-label" for="cerrado">
+                                Periodo Cerrado
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="cierre_forzado" 
+                                   id="cierre_forzado" {% if periodo.cierre_forzado %}checked{% endif %}>
+                            <label class="form-check-label" for="cierre_forzado">
+                                <span class="text-danger"><strong>Cierre Forzado (Docentes)</strong></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{{ url_for('admin.periodos') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

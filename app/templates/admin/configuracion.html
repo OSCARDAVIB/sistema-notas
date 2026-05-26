@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración de la Institución{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Configuración de la Institución</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Datos Básicos</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Nombre del Colegio:</label>
+                    <input type="text" name="nombre" class="form-control" value="{{ institucion.nombre or '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Código DANE:</label>
+                    <input type="text" name="codigo_dane" class="form-control" value="{{ institucion.codigo_dane or '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">NIT:</label>
+                    <input type="text" name="nit" class="form-control" value="{{ institucion.nit or '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Dirección:</label>
+                    <input type="text" name="direccion" class="form-control" value="{{ institucion.direccion or '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Teléfono:</label>
+                    <input type="text" name="telefono" class="form-control" value="{{ institucion.telefono or '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Email:</label>
+                    <input type="email" name="email" class="form-control" value="{{ institucion.email or '' }}">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Resolución de Aprobación N°</label>
+                        <input type="text" class="form-control" name="resolucion_numero" 
+                            value="{{ institucion.resolucion_numero or '' }}" 
+                            placeholder="Ej: 12345">
+                    <div class="form-text">Número de la resolución del MEN.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Fecha de Resolución</label>
+                    <input type="text" class="form-control" name="resolucion_fecha" 
+                        value="{{ institucion.resolucion_fecha or '' }}" 
+                        placeholder="Ej: 15 de enero de 2024">
+                    <div class="form-text">Fecha de la resolución.</div>
+                </div>
+            </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Página Web:</label>
+                    <input type="text" name="pagina_web" class="form-control" value="{{ institucion.pagina_web or '' }}">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Personalización Visual</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Fuente Tipográfica:</label>
+                    <input type="text" name="fuente_tipografica" class="form-control" value="{{ institucion.fuente_tipografica or 'Arial' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Tamaño Encabezado:</label>
+                    <input type="number" name="tamano_encabezado" class="form-control" value="{{ institucion.tamano_encabezado or 14 }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Color Primario:</label>
+                    <input type="color" name="color_primario" class="form-control" value="{{ institucion.color_primario or '#003366' }}">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Logos e Imágenes</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Logo del Colegio:</label>
+                            <input type="file" name="logo" class="form-control" accept="image/*">
+                            {% if institucion.logo_url %}
+                                <div class="mt-2">
+                                    <img src="{{ institucion.logo_url }}" alt="Logo actual" style="max-height: 100px; border: 1px solid #ddd;">
+                                    <p class="text-muted small">Logo actual</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Escudo de Colombia:</label>
+                            <input type="file" name="escudo_colombia" class="form-control" accept="image/*">
+                            {% if institucion.escudo_colombia_url %}
+                                <div class="mt-2">
+                                    <img src="{{ institucion.escudo_colombia_url }}" alt="Escudo actual" style="max-height: 100px; border: 1px solid #ddd;">
+                                    <p class="text-muted small">Escudo actual</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+    </form>
+</div>
+{% endblock %}

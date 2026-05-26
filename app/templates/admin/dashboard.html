@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Admin - {{ institucion.nombre }}{% endblock %}
+
+{% block content %}
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i> {{ institucion.nombre }}
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin.configuracion') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear"></i> Configuración
+                </a>
+                <a href="{{ url_for('admin.periodos') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar-event"></i> Periodos
+                </a>
+                <a href="{{ url_for('admin.cursos') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-layers"></i> Cursos y Grupos
+                </a>
+                <a href="{{ url_for('admin.asignaturas') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-book"></i> Asignaturas
+                </a>
+                <a href="{{ url_for('admin.escala_valorativa') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-graph-up"></i> Escala Valorativa
+                </a>
+                <a href="{{ url_for('admin.firmas') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-pen"></i> Firmas Digitales
+                </a>
+                <a href="{{ url_for('admin.importar_estudiantes') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-excel"></i> Importar Excel
+                </a>
+                <a href="{{ url_for('admin.crear_estudiante') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-person-plus"></i> Nuevo Estudiante
+                </a>
+                <a href="{{ url_for('admin.estudiantes') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people"></i> Ver Estudiantes
+                </a>
+                <a href="{{ url_for('admin.carga_academica') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clipboard-check"></i> Carga Académica
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h2><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+            <p class="text-muted">
+                Administrador: {{ current_user.nombre_completo() }} | 
+                Año Lectivo: {{ institucion.ano_lectivo_actual or '2026' }}
+                {% if periodo_activo %}
+                    | <span class="badge bg-success">Periodo {{ periodo_activo.numero_periodo }} Activo</span>
+                {% endif %}
+            </p>
+            
+            <!-- CARDS MÁS PEQUEÑOS - PRIMERA FILA -->
+            <div class="row g-2 mt-2">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-people fs-2 mb-1 d-block"></i>
+                            <h4 class="mb-0">{{ total_estudiantes }}</h4>
+                            <p class="mb-0 small">Total Estudiantes</p>
+                            <small class="d-block" style="font-size: 0.7rem;">{{ estudiantes_activos }} activos | {{ estudiantes_inactivos }} inactivos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-person-workspace fs-2 mb-1 d-block"></i>
+                            <h4 class="mb-0">{{ total_docentes }}</h4>
+                            <p class="mb-0 small">Docentes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-layers fs-2 mb-1 d-block"></i>
+                            <h4 class="mb-0">{{ total_grupos }}</h4>
+                            <p class="mb-0 small">Grupos</p>
+                            <small class="d-block" style="font-size: 0.7rem;">en {{ total_cursos }} cursos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CARDS MÁS PEQUEÑOS - SEGUNDA FILA -->
+            <div class="row g-2 mt-1 mb-3">
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-book fs-2 mb-1 d-block"></i>
+                            <h4 class="mb-0">{{ total_asignaturas }}</h4>
+                            <p class="mb-0 small">Asignaturas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-secondary dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-calendar-event fs-2 mb-1 d-block"></i>
+                            <h4 class="mb-0">{{ total_periodos }}</h4>
+                            <p class="mb-0 small">Periodos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light dashboard-card">
+                        <div class="card-body text-center py-2">
+                            <i class="bi bi-building fs-2 mb-1 d-block text-primary"></i>
+                            <h6 class="text-dark mb-0">{{ institucion.nombre[:20] }}{% if institucion.nombre|length > 20 %}...{% endif %}</h6>
+                            <p class="mb-0 small text-muted" style="font-size: 0.7rem;">{{ institucion.direccion or 'Sin dirección' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <i class="bi bi-lightning-charge"></i> Acciones Rápidas
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.crear_curso_grupo') }}" class="btn btn-outline-primary w-100 py-1">
+                                <i class="bi bi-layers fs-6"></i><br>
+                                <small class="fs-6">Nuevo Curso</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.crear_estudiante') }}" class="btn btn-outline-success w-100 py-1">
+                                <i class="bi bi-person-plus fs-6"></i><br>
+                                <small class="fs-6">Nuevo Estudiante</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.carga_academica') }}" class="btn btn-outline-info w-100 py-1">
+                                <i class="bi bi-clipboard-check fs-6"></i><br>
+                                <small class="fs-6">Carga Académica</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.configuracion') }}" class="btn btn-outline-secondary w-100 py-1">
+                                <i class="bi bi-gear fs-6"></i><br>
+                                <small class="fs-6">Configuración</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

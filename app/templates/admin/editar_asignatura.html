@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Asignatura{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-pencil"></i> Editar Asignatura</h2>
+    
+    <div class="card mt-3">
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>Nombre:</strong></label>
+                        <input type="text" class="form-control" name="nombre" 
+                               value="{{ asignatura.nombre }}" required>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label"><strong>Código:</strong></label>
+                        <input type="text" class="form-control" name="codigo" 
+                               value="{{ asignatura.codigo or '' }}">
+                    </div>
+                    
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label"><strong>Área:</strong></label>
+                        <input type="text" class="form-control" name="area" 
+                               value="{{ asignatura.area or '' }}"
+                               placeholder="Ej: Matemáticas">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label"><strong>Intensidad Horaria (hrs/semana):</strong></label>
+                        <input type="number" class="form-control" name="intensidad_horaria" 
+                               value="{{ asignatura.intensidad_horaria or '' }}"
+                               min="1" max="40">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="activa" 
+                                   id="activa" {% if asignatura.activa %}checked{% endif %}>
+                            <label class="form-check-label" for="activa">
+                                Asignatura Activa
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{{ url_for('admin.asignaturas') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

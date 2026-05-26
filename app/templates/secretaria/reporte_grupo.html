@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Grupo - Secretaria{% endblock %}
+
+{% block content %}
+
+<<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-mortarboard-fill"></i> Sistema Academico
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesion
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- MENU LATERAL -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('secretaria.dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('secretaria.estudiantes') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-people"></i> Estudiantes
+                </a>
+                <a href="{{ url_for('secretaria.boletines') }}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-text"></i> Boletines
+                </a>
+                <a href="{{ url_for('secretaria.reporte_grupo') }}" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-table"></i> Reporte Grupo
+                </a>
+            </div>
+        </div>
+        
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="col-md-9">
+            <h2 style="font-size: 1.2rem; padding-left: 20px;"><i class="bi bi-table"></i> Reporte de Grupo</h2>
+            <p class="text-muted" style="font-size: 0.9rem; padding-left: 20px;">I. E. D. TÉCNICA NUEVA GRANADA</p>
+
+            <!-- FILTROS -->
+            <div class="card mb-4 no-print">
+                <div class="card-body">
+                    <form method="GET" class="row g-3" id="form-reporte">
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo de Reporte</label>
+                            <select class="form-select" name="tipo" onchange="this.form.submit()">
+                                <option value="periodo" {% if tipo_reporte == 'periodo' %}selected{% endif %}>Por Periodo</option>
+                                <option value="final" {% if tipo_reporte == 'final' %}selected{% endif %}>Final (Consolidado)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Grupo</label>
+                            <select class="form-select" name="grupo_id" required>
+                                <option value="">-- Selecciona --</option>
+                                {% for g in grupos %}
+                                <option value="{{ g.id }}" {% if grupo and grupo.id == g.id %}selected{% endif %}>
+                                    {{ g.curso.nombre }} - {{ g.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Periodo</label>
+                            <select class="form-select" name="periodo_id" {% if tipo_reporte == 'final' %}disabled{% endif %}>
+                                <option value="">-- Selecciona --</option>
+                                {% for p in periodos %}
+                                <option value="{{ p.id }}" {% if periodo and periodo.id == p.id %}selected{% endif %}>
+                                    {{ p.ano_lectivo }} - P{{ p.numero_periodo }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Generar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- BOTONES DE ACCION -->
+            {% if grupo %}
+            <div class="d-flex gap-2 mb-3 no-print">
+                <button class="btn btn-success" onclick="exportarExcel()">
+                    <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                </button>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+            </div>
+            {% endif %}
+            
+            <!-- RESULTADO DEL REPORTE -->
+            {% if grupo %}
+            <div class="card" id="tabla-reporte">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 style="margin: 0; font-size: 1rem;">
+                        CONSOLIDADO - CURSO: {{ grupo.curso.nombre }} {{ grupo.nombre }} - 
+                        PERIODO: {{ periodo.ano_lectivo }} - {{ 'PRIMERO' if periodo and periodo.numero_periodo == 1 else 'SEGUNDO' if periodo and periodo.numero_periodo == 2 else 'TERCERO' if periodo and periodo.numero_periodo == 3 else 'CUARTO' if periodo and periodo.numero_periodo == 4 else 'FINAL' }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if estudiantes %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm table-hover mb-0" id="tabla-notas">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-center" style="width: 3%; padding: 2px; font-size: 0.7rem;">No</th>
+                                    <th style="width: 18%; padding: 2px 4px; font-size: 0.7rem; white-space: nowrap;">ESTUDIANTE</th>
+                                    <th class="text-center" style="width: 3%; padding: 2px; font-size: 0.7rem;">P</th>
+                                    {% for asig in asignaturas %}
+                                    <th class="text-center" style="width: 6%; padding: 2px; font-size: 0.7rem; white-space: nowrap;" title="{{ asig.nombre }}">{{ asig.nombre | codigo_asignatura }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for est in estudiantes %}
+                                <tr>
+                                    <td class="text-center" style="padding: 2px; font-size: 0.75rem;">{{ loop.index }}</td>
+                                    <td style="white-space: nowrap; font-size: 0.75rem; text-align: left; padding: 2px 4px;">{{ est.apellidos }} {{ est.nombres }}</td>
+                                    <td class="text-center" style="padding: 2px; font-size: 0.75rem;">{{ periodo.numero_periodo if periodo else 'F' }}</td>
+                                    {% for asig in asignaturas %}
+                                    {% set nombre_norm = asig.nombre | normalizar %}
+                                    <td class="text-center" style="padding: 2px; font-size: 0.75rem;">
+                                        {% if notas_estudiantes[est.id].get(nombre_norm) %}
+                                            {% set nota_val = notas_estudiantes[est.id][nombre_norm] %}
+                                            {% if nota_val < 3.0 %}
+                                                <span style="background-color: #ffeb3b; padding: 0 2px;">{{ "%.1f"|format(nota_val) }}</span>
+                                            {% else %}
+                                                {{ "%.1f"|format(nota_val) }}
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info m-3">
+                        <i class="bi bi-info-circle"></i> No hay estudiantes activos en este grupo.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Selecciona un grupo y haz clic en "Generar Reporte" para ver los resultados.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function exportarExcel() {
+    var tabla = document.getElementById('tabla-notas');
+    if (!tabla) {
+        alert('No hay datos para exportar.');
+        return;
+    }
+    
+    var csv = [];
+    var filas = tabla.querySelectorAll('tr');
+    
+    for (var i = 0; i < filas.length; i++) {
+        var celdas = filas[i].querySelectorAll('th, td');
+        var fila = [];
+        
+        for (var j = 0; j < celdas.length; j++) {
+            var texto = celdas[j].innerText.trim();
+            texto = texto.replace(/[\r\n\t]+/g, ' ');
+            texto = texto.replace(/\s+/g, ' ');
+            texto = texto.replace(/,/g, '');
+            texto = texto.replace(/"/g, '""');
+            fila.push('"' + texto + '"');
+        }
+        
+        csv.push(fila.join(';'));
+    }
+    
+    var csvContent = '\uFEFF' + csv.join('\r\n');
+    
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    
+    {% if grupo %}
+    var nombreArchivo = 'Reporte_{{ grupo.curso.nombre }}_{{ grupo.nombre }}' +
+                        '{% if periodo %}_Periodo{{ periodo.numero_periodo }}{% else %}_Final{% endif %}.csv';
+    {% else %}
+    var nombreArchivo = 'Reporte_Grupo.csv';
+    {% endif %}
+    
+    link.href = URL.createObjectURL(blob);
+    link.download = nombreArchivo;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+<style>
+@media print {
+    @page {
+        margin: 5mm !important;
+        size: landscape !important;
+    }
+    
+    .no-print, .navbar, .list-group {
+        display: none !important;
+    }
+    
+    .col-md-9 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .card {
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card-header {
+        padding: 2mm !important;
+        font-size: 9pt !important;
+        text-align: center !important;
+    }
+    
+    .card-body {
+        padding: 0 !important;
+    }
+    
+    .table {
+        font-size: 8pt !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+    }
+    
+    .table thead th {
+        background-color: #333 !important;
+        color: white !important;
+        border: 1px solid #555 !important;
+        padding: 2px !important;
+        font-size: 0.7rem !important;
+        text-align: center !important;
+        font-weight: bold !important;
+    }
+    
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 3% !important;
+        text-align: center !important;
+        padding: 2px !important;
+    }
+    
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 18% !important;
+        text-align: left !important;
+        padding: 2px 4px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 3% !important;
+        text-align: center !important;
+        padding: 2px !important;
+    }
+    
+    .table th:nth-child(n+4),
+    .table td:nth-child(n+4) {
+        width: auto !important;
+        min-width: 5% !important;
+        text-align: center !important;
+        padding: 2px !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .table td {
+        border: 1px solid #999 !important;
+    }
+    
+    .table td span[style*="background-color: #ffeb3b"] {
+        background-color: #ffeb3b !important;
+        padding: 0 2px !important;
+    }
+    
+    .badge {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        color: #000 !important;
+    }
+    
+    tbody tr {
+        line-height: 1.2 !important;
+    }
+}
+</style>
+{% endblock %}

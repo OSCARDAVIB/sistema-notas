@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Escala Valorativa{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a href="{{ url_for('admin.configuracion') }}" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuración</a>
+                <a href="{{ url_for('admin.periodos') }}" class="list-group-item list-group-item-action"><i class="bi bi-calendar-event"></i> Periodos</a>
+                <a href="{{ url_for('admin.cursos') }}" class="list-group-item list-group-item-action"><i class="bi bi-layers"></i> Cursos</a>
+                <a href="{{ url_for('admin.grupos') }}" class="list-group-item list-group-item-action"><i class="bi bi-people-fill"></i> Grupos</a>
+                <a href="{{ url_for('admin.asignaturas') }}" class="list-group-item list-group-item-action"><i class="bi bi-book"></i> Asignaturas</a>
+                <a href="{{ url_for('admin.escala_valorativa') }}" class="list-group-item list-group-item-action active"><i class="bi bi-graph-up"></i> Escala Valorativa</a>
+                <a href="{{ url_for('admin.firmas') }}" class="list-group-item list-group-item-action"><i class="bi bi-pen"></i> Firmas Digitales</a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h2><i class="bi bi-graph-up"></i> Escala Valorativa</h2>
+            <p class="text-muted">Configuración según lineamientos MEN</p>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="usar_escala_men" id="usar_escala_men" {% if config.usar_escala_men %}checked{% endif %}>
+                            <label class="form-check-label" for="usar_escala_men">
+                                <strong>Usar escala valorativa del MEN</strong>
+                            </label>
+                        </div>
+                        
+                        <h5 class="text-primary mb-3"><i class="bi bi-award"></i> Rangos de Desempeño</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="alert alert-success">
+                                    <h6><i class="bi bi-star-fill"></i> Superior</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label class="form-label">Mínimo</label>
+                                            <input type="number" class="form-control" name="rango_superior_min" value="{{ config.rango_superior_min }}" step="0.1" min="0" max="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Máximo</label>
+                                            <input type="number" class="form-control" name="rango_superior_max" value="{{ config.rango_superior_max }}" step="0.1" min="0" max="5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h6><i class="bi bi-star-half"></i> Alto</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label class="form-label">Mínimo</label>
+                                            <input type="number" class="form-control" name="rango_alto_min" value="{{ config.rango_alto_min }}" step="0.1" min="0" max="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Máximo</label>
+                                            <input type="number" class="form-control" name="rango_alto_max" value="{{ config.rango_alto_max }}" step="0.1" min="0" max="5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="alert alert-warning">
+                                    <h6><i class="bi bi-star"></i> Básico</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label class="form-label">Mínimo</label>
+                                            <input type="number" class="form-control" name="rango_basico_min" value="{{ config.rango_basico_min }}" step="0.1" min="0" max="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Máximo</label>
+                                            <input type="number" class="form-control" name="rango_basico_max" value="{{ config.rango_basico_max }}" step="0.1" min="0" max="5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-danger">
+                                    <h6><i class="bi bi-x-circle"></i> Bajo</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label class="form-label">Mínimo</label>
+                                            <input type="number" class="form-control" name="rango_bajo_min" value="{{ config.rango_bajo_min }}" step="0.1" min="0" max="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Máximo</label>
+                                            <input type="number" class="form-control" name="rango_bajo_max" value="{{ config.rango_bajo_max }}" step="0.1" min="0" max="5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Nota Mínima de Aprobación</strong></label>
+                            <input type="number" class="form-control w-25" name="nota_minima_aprobacion" value="{{ config.nota_minima_aprobacion }}" step="0.1" min="0" max="5">
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Guardar Escala</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

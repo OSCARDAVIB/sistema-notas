@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Docente{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill"></i> Sistema Académico</a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-white me-3">
+                <i class="bi bi-person-circle"></i> {{ current_user.nombre_completo() }}
+            </span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a href="{{ url_for('admin.configuracion') }}" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuración</a>
+                <a href="{{ url_for('admin.periodos') }}" class="list-group-item list-group-item-action"><i class="bi bi-calendar-event"></i> Periodos</a>
+                <a href="{{ url_for('admin.cursos') }}" class="list-group-item list-group-item-action"><i class="bi bi-layers"></i> Cursos</a>
+                <a href="{{ url_for('admin.grupos') }}" class="list-group-item list-group-item-action"><i class="bi bi-people-fill"></i> Grupos</a>
+                <a href="{{ url_for('admin.asignaturas') }}" class="list-group-item list-group-item-action"><i class="bi bi-book"></i> Asignaturas</a>
+                <a href="{{ url_for('admin.carga_academica') }}" class="list-group-item list-group-item-action"><i class="bi bi-clipboard-check"></i> Carga Académica</a>
+                <a href="{{ url_for('admin.estudiantes') }}" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Estudiantes</a>
+                <a href="{{ url_for('admin.crear_docente') }}" class="list-group-item list-group-item-action active"><i class="bi bi-person-plus"></i> Nuevo Docente</a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h2><i class="bi bi-person-plus"></i> Nuevo Docente</h2>
+            <p class="text-muted">Crear usuario docente para la institución</p>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.guardar_docente') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Usuario *</label>
+                                <input type="text" class="form-control" name="username" placeholder="Ej: maria.garcia" required>
+                                <div class="form-text">Nombre de usuario para iniciar sesión (sin espacios).</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-control" name="email" placeholder="Ej: maria@colegio.edu" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombres *</label>
+                                <input type="text" class="form-control" name="nombres" placeholder="Ej: María Elena" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellidos *</label>
+                                <input type="text" class="form-control" name="apellidos" placeholder="Ej: García López" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" name="telefono" placeholder="Ej: 3001234567">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Contraseña *</label>
+                                <input type="password" class="form-control" name="password" placeholder="Mínimo 6 caracteres" required>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            El docente será creado con el rol <strong>Docente</strong> automáticamente.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.carga_academica') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Crear Docente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

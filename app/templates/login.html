@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - Sistema Académico{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card card-login">
+        <div class="card-body p-4">
+            <div class="text-center">
+                <i class="bi bi-mortarboard-fill display-1 text-primary"></i>
+                <h3 class="mt-3 mb-1">Sistema Académico I. E. D. Técnica Nueva Granada</h3>
+                <p class="text-muted mb-4">Software de Gestión Académica</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="bi bi-person-fill"></i> Usuario
+                    </label>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           placeholder="Ingresa tu usuario" required autofocus>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock-fill"></i> Contraseña
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="Ingresa tu contraseña" required>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center text-muted small">
+                <p class="mb-1">Software de Gestión Académica</p>
+                <p class="mb-0">Versión 1.0 - 2026</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
